@@ -1,0 +1,45 @@
+{
+  "mapData": [
+    {"name": "北京", "value": 90, "teachers": 256800, "funds": 1199.94},
+    {"name": "天津", "value": 86, "teachers": 120000, "funds": 700},
+    {"name": "河北", "value": 78, "teachers": 1050000, "funds": 3100},
+    {"name": "山西", "value": 75, "teachers": 620000, "funds": 1900},
+    {"name": "内蒙古", "value": 72, "teachers": 280000, "funds": 800},
+    {"name": "辽宁", "value": 76, "teachers": 680000, "funds": 2200},
+    {"name": "吉林", "value": 73, "teachers": 490000, "funds": 1500},
+    {"name": "黑龙江", "value": 71, "teachers": 580000, "funds": 1600},
+    {"name": "上海", "value": 88, "teachers": 223500, "funds": 1889.63},
+    {"name": "江苏", "value": 82, "teachers": 1070000, "funds": 4006.79},
+    {"name": "浙江", "value": 80, "teachers": 934700, "funds": 3874.31},
+    {"name": "安徽", "value": 74, "teachers": 900000, "funds": 2800},
+    {"name": "福建", "value": 76, "teachers": 650000, "funds": 2400},
+    {"name": "江西", "value": 73, "teachers": 720000, "funds": 2300},
+    {"name": "山东", "value": 80, "teachers": 1450000, "funds": 4500},
+    {"name": "河南", "value": 78, "teachers": 1380000, "funds": 3700},
+    {"name": "湖北", "value": 77, "teachers": 910000, "funds": 2700},
+    {"name": "湖南", "value": 77, "teachers": 1020000, "funds": 3000},
+    {"name": "广东", "value": 85, "teachers": 1663500, "funds": 5874.31},
+    {"name": "海南", "value": 70, "teachers": 120000, "funds": 400},
+    {"name": "广西", "value": 72, "teachers": 760000, "funds": 2000},
+    {"name": "重庆", "value": 74, "teachers": 460000, "funds": 1700},
+    {"name": "四川", "value": 77, "teachers": 1120000, "funds": 3400},
+    {"name": "贵州", "value": 70, "teachers": 700000, "funds": 1800},
+    {"name": "云南", "value": 71, "teachers": 850000, "funds": 2100},
+    {"name": "西藏", "value": 65, "teachers": 40000, "funds": 150},
+    {"name": "陕西", "value": 75, "teachers": 780000, "funds": 2500},
+    {"name": "甘肃", "value": 71, "teachers": 530000, "funds": 1400},
+    {"name": "青海", "value": 68, "teachers": 70000, "funds": 250},
+    {"name": "宁夏", "value": 69, "teachers": 100000, "funds": 300},
+    {"name": "新疆", "value": 70, "teachers": 250000, "funds": 600}
+  ],
+  "barData": {
+    "xAxis": ["广东", "山东", "河南", "四川", "江苏"],
+    "series": [1663500, 1450000, 1380000, 1120000, 1070000]
+  },
+  "pieData": [
+    {"name": "基础教育", "value": 45},
+    {"name": "高等教育", "value": 35},
+    {"name": "职业教育", "value": 15},
+    {"name": "其他", "value": 5}
+  ]
+}

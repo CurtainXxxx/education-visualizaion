@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>教育资源配置可视化系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/regression@2.0.1/dist/regression.min.js"></script>
+    <!-- 引入ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- 引入中国地图 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts/map/js/china.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f5f7fa;
+            padding: 20px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .chart-card:hover {
+            transform: translateY(-5px);
+        }
+
+        #map-container {
+            grid-column: 1 / 3;
+            height: 600px;
+        }
+
+        .bar-chart,
+        .pie-chart {
+            height: 400px;
+        }
+
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            #map-container {
+                grid-column: 1 / 2;
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard">
+        <div id="map-container" class="chart-card">
+            <h3>各省教育资源综合指数</h3>
+            <div id="map" style="height: 100%;"></div>
+        </div>
+
+        <div class="chart-card">
+            <h3>教师数量TOP5</h3>
+            <div id="bar" class="bar-chart"></div>
+        </div>
+
+        <div class="chart-card">
+            <h3>教育经费分配</h3>
+            <div id="pie" class="pie-chart"></div>
+        </div>
+        <div class="chart-card">
+            <h3>教师数量预测</h3>
+            <div id="prediction-result"></div>
+        </div>
+    </div>
+
+
+    <script>
+        // 初始化图表实例
+        const mapChart = echarts.init(document.getElementById('map'));
+        const barChart = echarts.init(document.getElementById('bar'));
+        const pieChart = echarts.init(document.getElementById('pie'));
+
+        // 加载数据
+        fetch('education.json')
+           .then(response => response.json())
+           .then(data => {
+                renderMap(data.mapData);
+                renderBar(data.barData);
+                renderPie(data.pieData);
+                predictTeacherData(data.barData);
+            })
+           .catch(error => {
+                console.error('数据加载失败:', error);
+                alert('数据加载失败，请检查JSON文件路径');
+            });
+
+        // 地图配置
+        function renderMap(mapData) {
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: params => `
+                        <b>${params.name}</b><br/>
+                        综合指数：${params.data.value}分<br/>
+                        教师数量：${params.data.teachers}人<br/>
+                        教育经费：${params.data.funds}亿元
+                    `
+                },
+                visualMap: {
+                    min: 65,
+                    max: 100,
+                    left: '3%',
+                    bottom: '10%',
+                    text: ['高', '低'],
+                    calculable: true,
+                    inRange: {
+                        color: ['#bae0ff', '#91caff', '#69b1ff', '#4096ff', '#0958d9']
+                    }
+                },
+                series: [{
+                    type: 'map',
+                    map: 'china',
+                    roam: true,
+                    label: {
+                        show: true,
+                        fontSize: 12
+                    },
+                    data: mapData
+                }]
+            };
+            mapChart.setOption(option);
+        }
+
+        // 柱状图配置
+        function renderBar(barData) {
+            const option = {
+                tooltip: {
+                    trigger: 'axis'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: barData.xAxis,
+                    axisLabel: {
+                        rotate: 45
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '教师数量（人）'
+                },
+                series: [{
+                    type: 'bar',
+                    data: barData.series,
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#83bff6' },
+                            { offset: 1, color: '#188df0' }
+                        ])
+                    }
+                }]
+            };
+            barChart.setOption(option);
+        }
+
+        // 饼图配置
+        function renderPie(pieData) {
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c}%'
+                },
+                series: [{
+                    name: '经费占比',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    avoidLabelOverlap: false,
+                    label: {
+                        show: true,
+                        formatter: '{b}: {d}%'
+                    },
+                    data: pieData
+                }]
+            };
+            pieChart.setOption(option);
+        }
+
+        // 数据预测函数
+        function predictTeacherData(barData) {
+            const xAxis = barData.xAxis;
+            const series = barData.series;
+
+            // 准备数据用于线性回归
+            const dataForRegression = series.map((value, index) => [index, value]);
+
+            // 进行线性回归
+            const result = regression.linear(dataForRegression);
+
+            // 预测下一个数据点
+            const nextIndex = xAxis.length;
+            const predictedValue = result.predict(nextIndex)[1];
+
+            // 展示预测结果
+            const predictionResult = document.getElementById('prediction-result');
+            predictionResult.textContent = `预测下一个地区的教师数量为: ${predictedValue.toFixed(2)} 人`;
+        }
+
+        // 窗口大小变化时自适应
+        window.addEventListener('resize', () => {
+            mapChart.resize();
+            barChart.resize();
+            pieChart.resize();
+        });
+
+     
+        // 加载数据
+        fetch('education.json')
+           .then(response => response.json())
+           .then(data => {
+                renderMap(data.mapData);
+                renderBar(data.barData);
+                renderPie(data.pieData);
+
+                // 为地图添加点击事件
+                mapChart.on('click', function (params) {
+                    const selectedProvince = params.name;
+                    recommendResources(selectedProvince, data.mapData);
+                });
+            })
+           .catch(error => {
+                console.error('数据加载失败:', error);
+                alert('数据加载失败，请检查JSON文件路径');
+            });
+
+        // 其他函数保持不变
+
+        // 智能推荐函数
+        function recommendResources(selectedProvince, mapData) {
+            const selectedProvinceData = mapData.find(item => item.name === selectedProvince);
+
+            // 简单的推荐逻辑：推荐综合指数相近的地区
+            const similarProvinces = mapData.filter(item => {
+                const diff = Math.abs(item.value - selectedProvinceData.value);
+                return diff <= 5 && item.name !== selectedProvince;
+            });
+
+            const recommendMessage = `根据您选择的 ${selectedProvince}，为您推荐以下地区：${similarProvinces.map(item => item.name).join(', ')}`;
+            alert(recommendMessage);
+        }
+    </script>
+</body>
+
+</html>    
